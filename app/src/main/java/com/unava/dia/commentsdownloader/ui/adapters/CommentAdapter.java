@@ -29,7 +29,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentViewHolder> {
 
     @Override
     public void onBindViewHolder(final CommentViewHolder holder, int position) {
-        holder.allInfo.setText(commentArrayList.get(position).email);
+        holder.postId.setText(String.format("post id: %s", commentArrayList.get(position).postId.toString()));
+        holder.id.setText(String.format("id: %s", commentArrayList.get(position).id.toString()));
+        holder.name.setText(String.format("name: %s", commentArrayList.get(position).name));
+        holder.email.setText(String.format("email: %s", commentArrayList.get(position).email));
+        holder.body.setText(String.format("body: %s", commentArrayList.get(position).body));
     }
 
 
