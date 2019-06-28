@@ -1,29 +1,19 @@
 package com.unava.dia.commentsdownloader.ui;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.unava.dia.commentsdownloader.App;
 import com.unava.dia.commentsdownloader.R;
-import com.unava.dia.commentsdownloader.model.Comment;
-import com.unava.dia.commentsdownloader.network.APIInterface;
-import com.unava.dia.commentsdownloader.ui.adapters.CommentAdapter;
-
-import java.util.ArrayList;
+import com.unava.dia.commentsdownloader.network.NetManager;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
+
 import javax.inject.Inject;
 
 public class CommentsActivity extends AppCompatActivity {
@@ -31,10 +21,11 @@ public class CommentsActivity extends AppCompatActivity {
     @Inject
     Retrofit retrofit;
 
-    ArrayList<Comment> commentList;
+    // робить запити до сервера
+    NetManager nm;
 
-    String firstComment = "1";
-    String lastComment = "10";
+    String firstComment;
+    String lastComment;
 
     @BindView(R.id.commentsRecyclerView)
     RecyclerView rv;
@@ -47,48 +38,61 @@ public class CommentsActivity extends AppCompatActivity {
 
         ((App) getApplication()).getNetComponent().inject(this);
 
+        initData();
+    }
+
+    private void initData() {
+        // нет менеджер зробить запит та запхає результат в ресайклерв’ю
+        nm = new NetManager(retrofit, getApplicationContext(), rv);
+
         firstComment = this.getIntent().getStringExtra("FIRST_COMMENT");
         lastComment = this.getIntent().getStringExtra("LAST_COMMENT");
 
-        getSomeComments(firstComment);
+        // юзер може не ввести дiапазон коментарiв, тому ми їх перевiремо
+        if(firstComment.isEmpty()) firstComment = "1";
+        if(lastComment.isEmpty()) lastComment = "10";
+
+        String url = makeParams(Integer.parseInt(firstComment), Integer.parseInt(lastComment));
+
+        prepeareRecyclerView(); // add the listener
+
+        // Take first 10 comments from the server
+        nm.getSomeComments(url);
     }
 
-    private void getSomeComments( String id) {
-        Observable<ArrayList<Comment>> call = retrofit.create(APIInterface.class).getComments(id);
-
-        Observer<ArrayList<Comment>> observer = new Observer<ArrayList<Comment>>() {
+    // лiснер, що детектить кiнець прокрутки ресайклерв’ю
+    private void prepeareRecyclerView() {
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onSubscribe(Disposable d) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
 
-            }
+                // 1 - direction up
+                // -1 - down
+                if (!recyclerView.canScrollVertically(1)) {
+                    // LOAD NEW 10 COMMENTS
+                    Integer f = Integer.parseInt(lastComment) + 1;
+                    Integer l = Integer.parseInt(lastComment) + 10;
 
-            @Override
-            public void onNext(ArrayList<Comment> resultList) {
-                commentList = resultList;
-            }
+                    String url = makeParams(f, l);
 
-            @Override
-            public void onError(Throwable e) {
-                Log.d("CALL", e.getMessage());
-            }
+                    lastComment = l.toString();
+                    firstComment = f.toString();
 
-            @Override
-            public void onComplete() {
-                try {
-                    LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL ,false);
-                    CommentAdapter adapter = new CommentAdapter(commentList);
-                    rv.setLayoutManager(layoutManager);
-                    rv.setAdapter(adapter);
-                }
-                catch (Exception e) {
-                    Log.d("CALL", e.getMessage());
+                    // Take more 10 comments from the server
+                    nm.getSomeComments(url);
                 }
             }
-        };
+        });
+    }
+//робить с дiапазону iнтежерiв url запит до сервера
+    private String makeParams(Integer first, Integer last) {
+        String params = "/posts/1/comments?";
+        for (Integer i = first; i <= last; i++) {
+            params += "id=" + i.toString() + "&";
+        }
+        params = params.substring(0, params.length() - 1);
 
-
-        call.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
+        return params;
     }
 }
