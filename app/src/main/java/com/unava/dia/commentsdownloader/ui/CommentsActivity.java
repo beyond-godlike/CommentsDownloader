@@ -26,13 +26,10 @@ public class CommentsActivity extends AppCompatActivity {
     @Inject
     Retrofit retrofit;
 
-    // робить запити до сервера
     NetManager nm;
 
     String firstComment;
     String lastComment;
-
-    //List<Integer> query = new ArrayList<>();
 
     @BindView(R.id.commentsRecyclerView)
     RecyclerView rv;
