@@ -10,6 +10,11 @@ import com.unava.dia.commentsdownloader.App;
 import com.unava.dia.commentsdownloader.R;
 import com.unava.dia.commentsdownloader.network.NetManager;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit2.Retrofit;
@@ -26,6 +31,8 @@ public class CommentsActivity extends AppCompatActivity {
 
     String firstComment;
     String lastComment;
+
+    //List<Integer> query = new ArrayList<>();
 
     @BindView(R.id.commentsRecyclerView)
     RecyclerView rv;
@@ -52,12 +59,12 @@ public class CommentsActivity extends AppCompatActivity {
         if(firstComment.isEmpty()) firstComment = "1";
         if(lastComment.isEmpty()) lastComment = "10";
 
-        String url = makeParams(Integer.parseInt(firstComment), Integer.parseInt(lastComment));
+        List<Integer> query = makeParams(Integer.parseInt(firstComment), Integer.parseInt(lastComment));
 
         prepeareRecyclerView(); // add the listener
 
         // Take first 10 comments from the server
-        nm.getSomeComments(url);
+        nm.getSomeComments(query);
     }
 
     // лiснер, що детектить кiнець прокрутки ресайклерв’ю
@@ -74,25 +81,24 @@ public class CommentsActivity extends AppCompatActivity {
                     Integer f = Integer.parseInt(lastComment) + 1;
                     Integer l = Integer.parseInt(lastComment) + 10;
 
-                    String url = makeParams(f, l);
+                    List<Integer> query = makeParams(f, l);
 
                     lastComment = l.toString();
                     firstComment = f.toString();
 
                     // Take more 10 comments from the server
-                    nm.getSomeComments(url);
+                    nm.getSomeComments(query);
                 }
             }
         });
     }
 //робить с дiапазону iнтежерiв url запит до сервера
-    private String makeParams(Integer first, Integer last) {
-        String params = "/posts/1/comments?";
+    private List<Integer> makeParams(Integer first, Integer last) {
+        List<Integer> list = new ArrayList<>();
         for (Integer i = first; i <= last; i++) {
-            params += "id=" + i.toString() + "&";
+            list.add(i);
         }
-        params = params.substring(0, params.length() - 1);
 
-        return params;
+        return list;
     }
 }

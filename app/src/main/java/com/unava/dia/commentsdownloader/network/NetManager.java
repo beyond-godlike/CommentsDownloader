@@ -11,6 +11,8 @@ import com.unava.dia.commentsdownloader.ui.adapters.CommentAdapter;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -32,7 +34,7 @@ public class NetManager {
         this.rv = rv;
     }
 
-    public void getSomeComments(String url) {
+    public void getSomeComments(List<Integer> url) {
         Observable<ArrayList<Comment>> call = retrofit.create(APIInterface.class).getComments(url);
 
         Observer<ArrayList<Comment>> observer = new Observer<ArrayList<Comment>>() {
