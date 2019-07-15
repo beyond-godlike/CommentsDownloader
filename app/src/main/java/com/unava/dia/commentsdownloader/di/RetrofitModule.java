@@ -1,4 +1,6 @@
-package com.unava.dia.commentsdownloader.network;
+package com.unava.dia.commentsdownloader.di;
+
+import com.unava.dia.commentsdownloader.BuildConfig;
 
 import dagger.Module;
 import dagger.Provides;
@@ -7,11 +9,18 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module
-public class NetModule {
-    public final static String baseUrl = "https://jsonplaceholder.typicode.com";
+public class RetrofitModule {
+    private final static String baseUrl = BuildConfig.SERVER_URL;
 
     @Provides
-    Retrofit provideRetrofit() {
+    @ApplicationScope
+    APIInterface getApiInterface(Retrofit retrofit) {
+        return retrofit.create(APIInterface.class);
+    }
+
+    @Provides
+    @ApplicationScope
+    Retrofit getRetrofit() {
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())

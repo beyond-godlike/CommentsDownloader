@@ -4,32 +4,19 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
-import com.unava.dia.commentsdownloader.App;
 import com.unava.dia.commentsdownloader.R;
-import com.unava.dia.commentsdownloader.network.NetManager;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.unava.dia.commentsdownloader.model.CommentsActivityView;
+import com.unava.dia.commentsdownloader.presenter.CommentsActivityPresenter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Retrofit;
 
-import javax.inject.Inject;
+public class CommentsActivity extends AppCompatActivity implements CommentsActivityView {
+    private CommentsActivityPresenter presenter;
 
-public class CommentsActivity extends AppCompatActivity {
-
-    @Inject
-    Retrofit retrofit;
-
-    NetManager nm;
-
-    String firstComment;
-    String lastComment;
+    private String firstComment;
+    private String lastComment;
 
     @BindView(R.id.commentsRecyclerView)
     RecyclerView rv;
@@ -40,31 +27,25 @@ public class CommentsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_comments);
         ButterKnife.bind(this);
 
-        ((App) getApplication()).getNetComponent().inject(this);
-
-        initData();
+        init();
     }
 
-    private void initData() {
-        // нет менеджер зробить запит та запхає результат в ресайклерв’ю
-        nm = new NetManager(retrofit, getApplicationContext(), rv);
+    private void init() {
+        presenter = new CommentsActivityPresenter(rv, getApplicationContext());
 
         firstComment = this.getIntent().getStringExtra("FIRST_COMMENT");
         lastComment = this.getIntent().getStringExtra("LAST_COMMENT");
 
-        // юзер може не ввести дiапазон коментарiв, тому ми їх перевiремо
         if(firstComment.isEmpty()) firstComment = "1";
         if(lastComment.isEmpty()) lastComment = "10";
 
-        List<Integer> query = makeParams(Integer.parseInt(firstComment), Integer.parseInt(lastComment));
+        prepeareRecyclerView();
 
-        prepeareRecyclerView(); // add the listener
-
-        // Take first 10 comments from the server
-        nm.getSomeComments(query);
+        presenter.attachView(this);
+        presenter.loadData(firstComment, lastComment);
     }
 
-    // лiснер, що детектить кiнець прокрутки ресайклерв’ю
+
     private void prepeareRecyclerView() {
         rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -78,24 +59,23 @@ public class CommentsActivity extends AppCompatActivity {
                     Integer f = Integer.parseInt(lastComment) + 1;
                     Integer l = Integer.parseInt(lastComment) + 10;
 
-                    List<Integer> query = makeParams(f, l);
-
                     lastComment = l.toString();
                     firstComment = f.toString();
 
-                    // Take more 10 comments from the server
-                    nm.getSomeComments(query);
+                    presenter.loadData(firstComment, lastComment);
                 }
             }
         });
     }
-//робить с дiапазону iнтежерiв url запит до сервера
-    private List<Integer> makeParams(Integer first, Integer last) {
-        List<Integer> list = new ArrayList<>();
-        for (Integer i = first; i <= last; i++) {
-            list.add(i);
-        }
 
-        return list;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.deatachView();
+    }
+
+    @Override
+    public void onError(String message) {
+
     }
 }

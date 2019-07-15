@@ -1,4 +1,4 @@
-package com.unava.dia.commentsdownloader.network;
+package com.unava.dia.commentsdownloader.di;
 
 import com.unava.dia.commentsdownloader.model.Comment;
 
