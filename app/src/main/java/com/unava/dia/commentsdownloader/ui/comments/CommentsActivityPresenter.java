@@ -1,18 +1,15 @@
-package com.unava.dia.commentsdownloader.presenter;
+package com.unava.dia.commentsdownloader.ui.comments;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.view.menu.BaseMenuPresenter;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.unava.dia.commentsdownloader.App;
-import com.unava.dia.commentsdownloader.di.APIInterface;
+import com.unava.dia.commentsdownloader.di.component.Injector;
+import com.unava.dia.commentsdownloader.network.APIInterface;
 import com.unava.dia.commentsdownloader.model.Comment;
-import com.unava.dia.commentsdownloader.model.CommentsActivityView;
-import com.unava.dia.commentsdownloader.ui.CommentsActivity;
-import com.unava.dia.commentsdownloader.ui.adapters.CommentAdapter;
+import com.unava.dia.commentsdownloader.ui.base.BaseMvpPresenter;
+import com.unava.dia.commentsdownloader.ui.comments.CommentsActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,30 +22,25 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
 
-public class CommentsActivityPresenter <V extends CommentsActivityView> {
-    private CommentsActivity view;
+public class CommentsActivityPresenter  {
+    private CommentsActivity mCommentsActivity;
 
     @Inject
     Retrofit retrofit;
-    @Inject
-    Context c;
 
-    private RecyclerView rv;
     private ArrayList<Comment> commentList = new ArrayList<>();
 
     public  CommentsActivityPresenter (RecyclerView rv, Context c) {
-        //App.getNetComponent().inject(this);
+        Injector.getAppComponent().inject(this);
         //App.getActivityComponent().inject(this);
-        this.c = c;
-        this.rv = rv;
     }
 
     public void attachView(CommentsActivity view) {
-        this.view = view;
+        this.mCommentsActivity = view;
     }
 
     public void deatachView() {
-        view = null;
+        mCommentsActivity = null;
     }
 
     public void loadData(String firstComment, String lastComment) {
@@ -79,10 +71,8 @@ public class CommentsActivityPresenter <V extends CommentsActivityView> {
             @Override
             public void onComplete() {
                 try {
-                    LinearLayoutManager layoutManager = new LinearLayoutManager(c, LinearLayoutManager.VERTICAL ,false);
-                    CommentAdapter adapter = new CommentAdapter(commentList);
-                    rv.setLayoutManager(layoutManager);
-                    rv.setAdapter(adapter);
+                    mCommentsActivity.addComments(commentList);
+
                 }
                 catch (Exception e) {
                     Log.d("CALL", e.getMessage());

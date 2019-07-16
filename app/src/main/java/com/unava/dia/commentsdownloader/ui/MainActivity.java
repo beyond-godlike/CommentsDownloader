@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.unava.dia.commentsdownloader.R;
+import com.unava.dia.commentsdownloader.ui.comments.CommentsActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

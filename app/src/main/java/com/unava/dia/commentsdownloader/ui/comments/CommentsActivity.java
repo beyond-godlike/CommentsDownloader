@@ -1,19 +1,24 @@
-package com.unava.dia.commentsdownloader.ui;
+package com.unava.dia.commentsdownloader.ui.comments;
 
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.unava.dia.commentsdownloader.R;
-import com.unava.dia.commentsdownloader.model.CommentsActivityView;
-import com.unava.dia.commentsdownloader.presenter.CommentsActivityPresenter;
+import com.unava.dia.commentsdownloader.model.Comment;
+import com.unava.dia.commentsdownloader.ui.adapters.CommentAdapter;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class CommentsActivity extends AppCompatActivity implements CommentsActivityView {
+public class CommentsActivity extends AppCompatActivity {
     private CommentsActivityPresenter presenter;
+
+    private CommentAdapter adapter;
 
     private String firstComment;
     private String lastComment;
@@ -43,6 +48,12 @@ public class CommentsActivity extends AppCompatActivity implements CommentsActiv
 
         presenter.attachView(this);
         presenter.loadData(firstComment, lastComment);
+
+        // init views
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false);
+        adapter = new CommentAdapter();
+        rv.setLayoutManager(layoutManager);
+        rv.setAdapter(adapter);
     }
 
 
@@ -74,8 +85,7 @@ public class CommentsActivity extends AppCompatActivity implements CommentsActiv
         presenter.deatachView();
     }
 
-    @Override
-    public void onError(String message) {
-
+    public void addComments(ArrayList<Comment> resultList) {
+        adapter.insertComments(resultList);
     }
 }
