@@ -18,6 +18,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
@@ -30,9 +31,10 @@ public class CommentsActivityPresenter  {
 
     private ArrayList<Comment> commentList = new ArrayList<>();
 
-    public  CommentsActivityPresenter (RecyclerView rv, Context c) {
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    public  CommentsActivityPresenter (RecyclerView recyclerView, Context context) {
         Injector.getAppComponent().inject(this);
-        //App.getActivityComponent().inject(this);
     }
 
     public void attachView(CommentsActivity view) {
@@ -41,6 +43,8 @@ public class CommentsActivityPresenter  {
 
     public void deatachView() {
         mCommentsActivity = null;
+        // Using clear will clear all, but can accept new disposable
+        compositeDisposable.clear();
     }
 
     public void loadData(String firstComment, String lastComment) {
@@ -52,38 +56,36 @@ public class CommentsActivityPresenter  {
     protected void getComments(List<Integer> url) {
         Observable<ArrayList<Comment>> call = retrofit.create(APIInterface.class).getComments(url);
 
-        DisposableObserver<ArrayList<Comment>> observer = new DisposableObserver<ArrayList<Comment>>() {
-
-            @Override
-            public void onNext(ArrayList<Comment> resultList) {
-                // prevent memory leaks
-                if(resultList.isEmpty()) dispose();
-
-                // must fix null pointer exception while calling adapter.getItemCount()
-                commentList.addAll(resultList);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.d("CALL", e.getMessage());
-            }
-
-            @Override
-            public void onComplete() {
-                try {
-                    mCommentsActivity.addComments(commentList);
-
-                }
-                catch (Exception e) {
-                    Log.d("CALL", e.getMessage());
-                }
-            }
-        };
-
-
-        call.subscribeOn(Schedulers.io())
+        compositeDisposable.add(call.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
+                .subscribeWith(new DisposableObserver<ArrayList<Comment>>() {
+                    @Override
+                    public void onComplete() {
+                        try {
+                            mCommentsActivity.addComments(commentList);
+
+                        }
+                        catch (Exception e) {
+                            Log.d("CALL", e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onNext(ArrayList<Comment> resultList) {
+                        // prevent memory leaks
+                        if(resultList.isEmpty()) dispose();
+
+                        // must fix null pointer exception while calling adapter.getItemCount()
+                        commentList.addAll(resultList);
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d("CALL", e.getMessage());
+                    }
+
+                }));
     }
 
     private List<Integer> makeParams(Integer first, Integer last) {

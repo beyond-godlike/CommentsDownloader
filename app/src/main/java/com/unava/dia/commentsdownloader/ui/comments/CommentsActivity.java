@@ -24,7 +24,7 @@ public class CommentsActivity extends AppCompatActivity {
     private String lastComment;
 
     @BindView(R.id.commentsRecyclerView)
-    RecyclerView rv;
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +36,7 @@ public class CommentsActivity extends AppCompatActivity {
     }
 
     private void init() {
-        presenter = new CommentsActivityPresenter(rv, getApplicationContext());
+        presenter = new CommentsActivityPresenter(recyclerView, getApplicationContext());
 
         firstComment = this.getIntent().getStringExtra("FIRST_COMMENT");
         lastComment = this.getIntent().getStringExtra("LAST_COMMENT");
@@ -52,13 +52,13 @@ public class CommentsActivity extends AppCompatActivity {
         // init views
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false);
         adapter = new CommentAdapter();
-        rv.setLayoutManager(layoutManager);
-        rv.setAdapter(adapter);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
     }
 
 
     private void prepeareRecyclerView() {
-        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
