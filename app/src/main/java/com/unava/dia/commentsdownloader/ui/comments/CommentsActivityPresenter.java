@@ -23,7 +23,7 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
 
-public class CommentsActivityPresenter  {
+public class CommentsActivityPresenter implements CommentsMvpPresenter {
     private CommentsActivity mCommentsActivity;
 
     @Inject
@@ -95,5 +95,10 @@ public class CommentsActivityPresenter  {
         }
 
         return list;
+    }
+
+    @Override
+    public void onEndScroll() {
+
     }
 }
