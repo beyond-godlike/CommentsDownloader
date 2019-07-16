@@ -5,7 +5,6 @@ import android.content.Context;
 
 import com.unava.dia.commentsdownloader.di.component.DaggerApplicationComponent;
 import com.unava.dia.commentsdownloader.di.component.Injector;
-import com.unava.dia.commentsdownloader.di.modules.ActivityModule;
 import com.unava.dia.commentsdownloader.di.component.ApplicationComponent;
 import com.unava.dia.commentsdownloader.di.modules.ApplicationModule;
 

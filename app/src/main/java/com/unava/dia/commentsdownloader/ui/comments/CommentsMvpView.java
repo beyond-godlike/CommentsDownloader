@@ -7,4 +7,6 @@ import java.util.ArrayList;
 
 public interface CommentsMvpView extends BaseMvpView {
     void addComments(ArrayList<Comment> resultList);
+
+    void showError(String message);
 }

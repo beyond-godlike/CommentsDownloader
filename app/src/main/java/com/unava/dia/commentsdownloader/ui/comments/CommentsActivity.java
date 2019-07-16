@@ -7,21 +7,33 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.unava.dia.commentsdownloader.R;
+import com.unava.dia.commentsdownloader.data.CommentsRepository;
+import com.unava.dia.commentsdownloader.data.api.APIInterface;
+import com.unava.dia.commentsdownloader.di.component.Injector;
+import com.unava.dia.commentsdownloader.di.modules.NetworkModule;
 import com.unava.dia.commentsdownloader.model.Comment;
 import com.unava.dia.commentsdownloader.ui.adapters.CommentAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Single;
 
 public class CommentsActivity extends AppCompatActivity implements CommentsMvpView{
-    private CommentsActivityPresenter presenter;
 
+    private CommentsActivityPresenter presenter;
     private CommentAdapter adapter;
 
     private String firstComment;
     private String lastComment;
+
+    @Inject
+    APIInterface apiInterface;
+
 
     @BindView(R.id.commentsRecyclerView)
     RecyclerView recyclerView;
@@ -32,11 +44,15 @@ public class CommentsActivity extends AppCompatActivity implements CommentsMvpVi
         setContentView(R.layout.activity_comments);
         ButterKnife.bind(this);
 
+        Injector.getAppComponent().inject(this);
+
         init();
     }
 
     private void init() {
-        presenter = new CommentsActivityPresenter(recyclerView, getApplicationContext());
+        CommentsModel model = new CommentsModel(new CommentsRepository(apiInterface));
+
+        presenter = new CommentsActivityPresenter(this, model);
 
         firstComment = this.getIntent().getStringExtra("FIRST_COMMENT");
         lastComment = this.getIntent().getStringExtra("LAST_COMMENT");
@@ -46,7 +62,6 @@ public class CommentsActivity extends AppCompatActivity implements CommentsMvpVi
 
         prepeareRecyclerView();
 
-        presenter.attachView(this);
         presenter.loadData(firstComment, lastComment);
 
         // init views
@@ -82,10 +97,14 @@ public class CommentsActivity extends AppCompatActivity implements CommentsMvpVi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        presenter.deatachView();
     }
 
     public void addComments(ArrayList<Comment> resultList) {
         adapter.insertComments(resultList);
+    }
+
+    @Override
+    public void showError(String message) {
+
     }
 }

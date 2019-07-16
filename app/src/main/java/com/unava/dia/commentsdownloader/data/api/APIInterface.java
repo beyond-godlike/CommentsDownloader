@@ -1,15 +1,15 @@
-package com.unava.dia.commentsdownloader.network;
+package com.unava.dia.commentsdownloader.data.api;
 
 import com.unava.dia.commentsdownloader.model.Comment;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Single;
 import retrofit2.http.*;
-import io.reactivex.Observable;
 
 public interface APIInterface {
     @GET("/posts/1/comments")
-    Observable<ArrayList<Comment>> getComments(@Query("id") List<Integer> filters);
+    Single<ArrayList<Comment>> getComments(@Query("id") List<Integer> filters);
 
 }

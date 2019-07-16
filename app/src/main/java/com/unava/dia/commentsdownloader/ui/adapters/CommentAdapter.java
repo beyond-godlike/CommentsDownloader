@@ -14,17 +14,18 @@ import java.util.ArrayList;
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
     private ArrayList<Comment> commentArrayList;
 
+
+    public CommentAdapter() {
+        this(new ArrayList());
+    }
+
     public CommentAdapter(ArrayList<Comment> list) {
         this.commentArrayList = list;
-    }
-    public CommentAdapter() {
-        this.commentArrayList = new ArrayList<>();
     }
 
     public void insertComments(ArrayList<Comment> list) {
         commentArrayList = list;
         notifyDataSetChanged();
-//        commentArrayList.addAll(list);
     }
 
     @Override
