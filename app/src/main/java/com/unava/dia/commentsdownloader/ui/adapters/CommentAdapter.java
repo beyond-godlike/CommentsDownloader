@@ -4,18 +4,28 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.unava.dia.commentsdownloader.R;
 import com.unava.dia.commentsdownloader.model.Comment;
 
 import java.util.ArrayList;
 
-public class CommentAdapter extends RecyclerView.Adapter<CommentViewHolder> {
-    ArrayList<Comment> commentArrayList;
+public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
+    private ArrayList<Comment> commentArrayList;
 
-    public CommentAdapter(ArrayList<Comment> l) {
-        commentArrayList = new ArrayList<>();
-        this.commentArrayList = l;
+
+    public CommentAdapter() {
+        this(new ArrayList());
+    }
+
+    public CommentAdapter(ArrayList<Comment> list) {
+        this.commentArrayList = list;
+    }
+
+    public void insertComments(ArrayList<Comment> list) {
+        commentArrayList = list;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -27,17 +37,36 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentViewHolder> {
 
     @Override
     public void onBindViewHolder(final CommentViewHolder holder, int position) {
-        holder.postId.setText(String.format("post id: %s", commentArrayList.get(position).postId.toString()));
-        holder.id.setText(String.format("id: %s", commentArrayList.get(position).id.toString()));
-        holder.name.setText(String.format("name: %s", commentArrayList.get(position).name));
-        holder.email.setText(String.format("email: %s", commentArrayList.get(position).email));
-        holder.body.setText(String.format("body: %s", commentArrayList.get(position).body));
+        holder.postId.setText(String.format("post id: %s", commentArrayList.get(position).getPostId().toString()));
+        holder.id.setText(String.format("id: %s", commentArrayList.get(position).getId().toString()));
+        holder.name.setText(String.format("name: %s", commentArrayList.get(position).getName()));
+        holder.email.setText(String.format("email: %s", commentArrayList.get(position).getEmail()));
+        holder.body.setText(String.format("body: %s", commentArrayList.get(position).getBody()));
     }
-
 
     @Override
     public int getItemCount() {
         return commentArrayList.size();
+    }
+
+
+    static class CommentViewHolder extends RecyclerView.ViewHolder {
+        private TextView postId;
+        private TextView id;
+        private TextView name;
+        private TextView email;
+        private TextView body;
+
+        public CommentViewHolder(View itemView) {
+            super(itemView);
+
+            postId = (TextView) itemView.findViewById(R.id.postId);
+            id = (TextView) itemView.findViewById(R.id.id);
+            name  = (TextView) itemView.findViewById(R.id.name);
+            email = (TextView) itemView.findViewById(R.id.email);
+            body = (TextView) itemView.findViewById(R.id.body);
+        }
+
     }
 
 }

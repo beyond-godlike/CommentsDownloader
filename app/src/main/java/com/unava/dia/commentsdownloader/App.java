@@ -1,28 +1,33 @@
 package com.unava.dia.commentsdownloader;
 
 import android.app.Application;
+import android.content.Context;
 
-import com.unava.dia.commentsdownloader.network.DaggerNetComponent;
-import com.unava.dia.commentsdownloader.network.NetComponent;
-import com.unava.dia.commentsdownloader.network.NetModule;
+import com.unava.dia.commentsdownloader.di.component.DaggerApplicationComponent;
+import com.unava.dia.commentsdownloader.di.component.Injector;
+import com.unava.dia.commentsdownloader.di.component.ApplicationComponent;
+import com.unava.dia.commentsdownloader.di.modules.ApplicationModule;
 
 public class App extends Application {
-    private NetComponent netComponent;
+    private static ApplicationComponent appComponent;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Injector.initializeAppComponent(this);
+        Injector.getAppComponent().inject(this);
+
 
         // after building
-         netComponent = DaggerNetComponent
+        appComponent = DaggerApplicationComponent
                 .builder()
-                .netModule(new NetModule())
+                .applicationModule(new ApplicationModule(this))
                 .build();
 
-
     }
 
-    public NetComponent getNetComponent() {
-        return netComponent;
+    public ApplicationComponent getApplicationComponent() {
+        return appComponent;
     }
+
 }

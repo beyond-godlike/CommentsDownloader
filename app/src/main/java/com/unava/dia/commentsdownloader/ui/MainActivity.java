@@ -3,12 +3,11 @@ package com.unava.dia.commentsdownloader.ui;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
 import com.unava.dia.commentsdownloader.R;
-import com.unava.dia.commentsdownloader.ui.CommentsActivity;
+import com.unava.dia.commentsdownloader.ui.comments.CommentsActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
